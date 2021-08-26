@@ -3,19 +3,33 @@ package dev.triumphteam.contest.listeners
 import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.config.Settings
+import dev.triumphteam.contest.database.Votes
+import dev.triumphteam.contest.func.BotColor
+import dev.triumphteam.contest.func.embed
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.kipp.event.on
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.Button
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 fun JdaApplication.voting() {
     val config = feature(Config)
 
+    val buttons = mutableMapOf(
+        "cyberpunk" to ActionRow.of(Button.secondary("cyberpunk", "Cyberpunk")),
+        "horror" to ActionRow.of(Button.secondary("horror", "Horror")),
+        "mc2" to ActionRow.of(Button.secondary("mc2", "Minecraft 2.0")),
+    )
+
     on<GuildMessageReceivedEvent> {
         if (!message.contentDisplay.startsWith("!vote")) return@on
-        message
+        message.delete().queue()
 
         channel.sendMessage(
             """
@@ -29,16 +43,47 @@ fun JdaApplication.voting() {
             
             Please choose from one of the themes below to cast your vote!
             """.trimIndent()
-        ).setActionRows(
-            ActionRow.of(Button.secondary("cyberpunk", "Cyberpunk")),
-            ActionRow.of(Button.secondary("horror", "Horror")),
-            ActionRow.of(Button.secondary("mc2", "Minecraft 2.0")),
-        ).queue()
+        ).setActionRows(buttons.values).queue()
     }
 
     on<ButtonClickEvent> {
-        when (button?.id) {
-            "cyberpunk" -> reply("clicked on cyberpunk").queue()
+        val buttonId = button?.id ?: return@on
+        if (buttonId !in buttons.keys) return@on
+        val voter = member ?: return@on
+        // TODO False for now
+        deferReply(true).queue()
+
+        transaction {
+            val vote = Votes.select { Votes.voter eq voter.idLong }.firstOrNull()
+
+            if (vote == null) {
+                Votes.insert {
+                    it[Votes.vote] = buttonId
+                    it[Votes.voter] = voter.idLong
+                }
+
+                hook.sendMessageEmbeds(
+                    embed {
+                        setColor(BotColor.SUCCESS.color)
+                        setTitle("Thank you for voting!")
+                        setDescription("You have voted for `${button?.label}`!")
+                    }
+                ).setEphemeral(true).queue()
+                return@transaction
+            }
+
+            Votes.update({ Votes.voter eq voter.idLong }) {
+                it[Votes.vote] = buttonId
+            }
+
+            hook.sendMessageEmbeds(
+                embed {
+                    setColor(BotColor.SUCCESS.color)
+                    setTitle("Vote changed successfully!")
+                    setDescription("Your vote was changed to `${button?.label}`!")
+                }
+            ).setEphemeral(true).queue()
         }
+
     }
 }

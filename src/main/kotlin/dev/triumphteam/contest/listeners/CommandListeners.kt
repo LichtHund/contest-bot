@@ -3,6 +3,7 @@ package dev.triumphteam.contest.listeners
 import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.config.Settings
+import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.plural
 import dev.triumphteam.jda.JdaApplication
@@ -75,7 +76,7 @@ private fun SlashCommandEvent.handleParticipate() {
     }
 
     val embed = embed {
-        setColor(Color.decode("#2ecc71"))
+        setColor(BotColor.SUCCESS.color)
         setTitle("You're in!")
         addField("Repo", repo, false)
         addField("Members", participants.joinToString(", "), false)
