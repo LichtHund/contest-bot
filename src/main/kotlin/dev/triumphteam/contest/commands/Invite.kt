@@ -11,6 +11,7 @@ import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.queueReply
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.contest.event.on
+import dev.triumphteam.contest.func.inBotChannel
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import org.jetbrains.exposed.dao.id.EntityID
@@ -28,6 +29,7 @@ fun JdaApplication.invite() {
     on<SlashCommandEvent> {
         if (name != "invite") return@on
         deferReply(true).queue()
+        if (!inBotChannel(config)) return@on
 
         val partner = getOption("partner")?.asMember ?: run {
             // Should never happen

@@ -9,6 +9,7 @@ import dev.triumphteam.contest.func.getOrNull
 import dev.triumphteam.contest.func.queueReply
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.contest.event.on
+import dev.triumphteam.contest.func.inBotChannel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.json.JsonFeature
@@ -59,6 +60,8 @@ fun JdaApplication.participate() {
  * Getting a bit complex, but will refactor for next contest
  */
 private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
+    if (!inBotChannel(config)) return
+
     val leader = member ?: run {
         // Should never happen
         queueReply("Member is null.")

@@ -1,5 +1,7 @@
 package dev.triumphteam.contest.func
 
+import dev.triumphteam.contest.config.Config
+import dev.triumphteam.contest.config.Settings
 import io.ktor.client.HttpClient
 import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.HttpRequestBuilder
@@ -50,4 +52,19 @@ fun SlashCommandEvent.queueReply(embed: MessageEmbed) {
 
 fun SlashCommandEvent.queueReply(message: String) {
     hook.sendMessage(message).setEphemeral(true).queue()
+}
+
+fun SlashCommandEvent.inBotChannel(config: Config): Boolean {
+    val botChannel = guild?.getTextChannelById(config[Settings.CHANNELS].botCommands)
+    if (channel.idLong != botChannel?.idLong) {
+        queueReply(
+            embed {
+                setColor(BotColor.FAIL.color)
+                setDescription("Please move to ${botChannel?.asMention} to run the command.")
+            }
+        )
+        return false
+    }
+
+    return true
 }
