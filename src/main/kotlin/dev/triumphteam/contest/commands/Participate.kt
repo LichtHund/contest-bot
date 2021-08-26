@@ -21,6 +21,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -62,7 +63,7 @@ fun JdaApplication.participate() {
 private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
     if (!inBotChannel(config)) return
 
-    val leader = member ?: run {
+    val member = member ?: run {
         // Should never happen
         queueReply("Member is null.")
         return
@@ -90,7 +91,8 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
     }
 
     val leaderResult = transaction {
-        Participants.select { Participants.leader eq leader.idLong }.firstOrNull()
+        Participants.select { Participants.leader eq member.idLong or (Participants.partner eq member.idLong) }
+            .firstOrNull()
     }
     if (leaderResult != null) {
         queueReply(
@@ -137,7 +139,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
 
     val team = transaction {
         Participants.insertAndGetId {
-            it[Participants.leader] = leader.idLong
+            it[Participants.leader] = member.idLong
             it[Participants.repo] = repoUrl
         }
     }
@@ -160,6 +162,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
             )
             return@embed
         }
+        setDescription("`/team` for more information!")
     }
 
     queueReply(embed)

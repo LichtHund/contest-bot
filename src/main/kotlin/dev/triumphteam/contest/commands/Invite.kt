@@ -63,7 +63,7 @@ fun JdaApplication.invite() {
             queueReply(
                 embed {
                     setColor(BotColor.FAIL.color)
-                    setDescription("You're not participating in the contest!\nMake sure to run `$PARTICIPATE_COMMAND` to enter!")
+                    setDescription("You're not participating in the contest or not the leader of a team!")
                 }
             )
             return@on
