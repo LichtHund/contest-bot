@@ -10,7 +10,7 @@ import dev.triumphteam.contest.func.PARTICIPATE_COMMAND
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.queueReply
 import dev.triumphteam.jda.JdaApplication
-import dev.triumphteam.kipp.event.on
+import dev.triumphteam.contest.event.on
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import org.jetbrains.exposed.dao.id.EntityID

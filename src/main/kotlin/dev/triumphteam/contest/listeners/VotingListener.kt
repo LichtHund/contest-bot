@@ -7,12 +7,11 @@ import dev.triumphteam.contest.database.Votes
 import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.jda.JdaApplication
-import dev.triumphteam.kipp.event.on
+import dev.triumphteam.contest.event.on
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.Button
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction

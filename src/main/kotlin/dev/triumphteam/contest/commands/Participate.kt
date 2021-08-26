@@ -2,15 +2,13 @@ package dev.triumphteam.contest.commands
 
 import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.contest.config.Config
-import dev.triumphteam.contest.config.Settings
-import dev.triumphteam.contest.database.Invites
 import dev.triumphteam.contest.database.Participants
 import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.getOrNull
 import dev.triumphteam.contest.func.queueReply
 import dev.triumphteam.jda.JdaApplication
-import dev.triumphteam.kipp.event.on
+import dev.triumphteam.contest.event.on
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.json.JsonFeature
@@ -20,13 +18,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
-import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction

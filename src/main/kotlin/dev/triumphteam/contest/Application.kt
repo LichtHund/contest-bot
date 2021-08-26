@@ -56,7 +56,7 @@ fun main(args: Array<String>) {
                         }
                     ).queue()
 
-                    guild.updateCommands().queue()
+                    //guild.updateCommands().queue()
                 }
             }
         )

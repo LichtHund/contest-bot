@@ -1,4 +1,4 @@
-package dev.triumphteam.kipp.event
+package dev.triumphteam.contest.event
 
 import dev.triumphteam.bukkit.dsl.TriumphDsl
 import dev.triumphteam.bukkit.feature.ApplicationFeature
@@ -44,10 +44,4 @@ fun JdaApplication.listen(listener: JdaApplication.() -> Unit): Listeners {
 inline fun <reified E : GenericEvent> JdaApplication.on(noinline listener: E.() -> Unit) {
     val feature = featureOrNull(Listeners) ?: install(Listeners)
     feature.register(EventExecutor(E::class.java, listener as GenericEvent.() -> Unit))
-}
-
-@TriumphDsl
-@Suppress("UNCHECKED_CAST")
-inline fun <reified E : GenericEvent> JDABuilder.on(noinline listener: E.() -> Unit) {
-    addEventListeners(EventExecutor(E::class.java, listener as GenericEvent.() -> Unit))
 }

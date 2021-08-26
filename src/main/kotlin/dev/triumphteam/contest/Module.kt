@@ -8,9 +8,7 @@ import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.database.Database
 import dev.triumphteam.contest.listeners.voting
 import dev.triumphteam.jda.JdaApplication
-import dev.triumphteam.kipp.event.listen
-import dev.triumphteam.kipp.event.on
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
+import dev.triumphteam.contest.event.listen
 
 fun JdaApplication.module() {
     install(Config)

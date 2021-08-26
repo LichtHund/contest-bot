@@ -1,4 +1,4 @@
-package dev.triumphteam.kipp.event
+package dev.triumphteam.contest.event
 
 import net.dv8tion.jda.api.events.GenericEvent
 
