@@ -27,6 +27,8 @@ class Database {
             transaction {
                 SchemaUtils.create(
                     Votes,
+                    Participants,
+                    Invites,
                 )
             }
 

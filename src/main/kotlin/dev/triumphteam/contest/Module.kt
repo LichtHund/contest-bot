@@ -1,27 +1,20 @@
 package dev.triumphteam.contest
 
 import dev.triumphteam.bukkit.feature.install
+import dev.triumphteam.contest.commands.participate
 import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.database.Database
-import dev.triumphteam.contest.listeners.commands
 import dev.triumphteam.contest.listeners.voting
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.kipp.event.listen
 import dev.triumphteam.kipp.event.on
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
-import net.dv8tion.jda.api.interactions.components.ActionRow
-import net.dv8tion.jda.api.interactions.components.Button
-import net.dv8tion.jda.api.interactions.components.ButtonStyle
 
 fun JdaApplication.module() {
     install(Config)
     install(Database)
 
-    listen(JdaApplication::commands)
+    listen(JdaApplication::participate)
     listen(JdaApplication::voting)
 
     on<ButtonClickEvent> {

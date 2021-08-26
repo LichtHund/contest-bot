@@ -4,6 +4,7 @@ import java.awt.Color
 
 enum class BotColor(val color: Color) {
 
-    SUCCESS(Color.decode("#2ecc71"))
+    SUCCESS(Color.decode("#2ecc71")),
+    FAIL(Color.decode("#e74c3c"))
 
 }
