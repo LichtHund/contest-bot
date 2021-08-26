@@ -2,6 +2,7 @@ package dev.triumphteam.contest.commands
 
 import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.contest.config.Config
+import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Participants
 import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
@@ -24,6 +25,8 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Instant
+import java.time.LocalTime
 
 private val urlPattern = "(https://github.com/(?<user>[\\w'-]+)/(?<repo>[\\w'-]+)(/)?)".toRegex()
 private val scope = CoroutineScope(IO)
@@ -127,7 +130,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
 
     val partner = getOption("partner")?.asMember
 
-    if (partner?.idLong == member?.idLong) {
+    if (partner?.idLong == member.idLong) {
         queueReply(
             embed {
                 setColor(BotColor.FAIL.color)
@@ -144,8 +147,20 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         }
     }
 
+    val logChannel = guild?.getTextChannelById(config[Settings.CHANNELS].contestLog)
+
+    logChannel?.sendMessageEmbeds(
+        embed {
+            setColor(BotColor.INFO.color)
+            setTitle("New team registered.")
+            addField("Leader", member.asMention, false)
+            addField("Repository", repoUrl, false)
+            setTimestamp(Instant.now())
+        }
+    )?.queue()
+
     if (partner != null) {
-        if (!invitePartner(config, partner, team)) return
+        if (!invitePartner(config, partner, team, member, logChannel)) return
     }
 
     val embed = embed {

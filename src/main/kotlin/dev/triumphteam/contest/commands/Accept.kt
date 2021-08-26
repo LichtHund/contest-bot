@@ -2,8 +2,10 @@ package dev.triumphteam.contest.commands
 
 import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.contest.config.Config
+import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Invites
 import dev.triumphteam.contest.database.Participants
+import dev.triumphteam.contest.database.Participants.leader
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.contest.event.on
 import dev.triumphteam.contest.func.BotColor
@@ -17,6 +19,7 @@ import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import java.time.Instant
 
 /**
  * The current commands are temporary, JDA's way is really annoying
@@ -43,7 +46,7 @@ fun JdaApplication.accept() {
         }
 
         transaction {
-            Participants.select { Participants.leader eq inviter.idLong or (Participants.partner eq member.idLong) }
+            Participants.select { leader eq inviter.idLong or (Participants.partner eq member.idLong) }
                 .firstOrNull() ?: run {
                 queueReply(
                     embed {
@@ -55,7 +58,7 @@ fun JdaApplication.accept() {
                 return@transaction
             }
 
-            val team = Participants.select { Participants.leader eq inviter.idLong }.firstOrNull() ?: run {
+            val team = Participants.select { leader eq inviter.idLong }.firstOrNull() ?: run {
                 queueReply(
                     embed {
                         setColor(BotColor.FAIL.color)
@@ -80,6 +83,15 @@ fun JdaApplication.accept() {
             }
 
             Invites.deleteWhere { Invites.id eq invite[Invites.id] }
+
+            guild?.getTextChannelById(config[Settings.CHANNELS].contestLog)?.sendMessageEmbeds(
+                embed {
+                    setColor(BotColor.INFO.color)
+                    setTitle("Member joined.")
+                    setDescription("${member.asMention} has joined ${inviter.asMention}'s team.")
+                    setTimestamp(Instant.now())
+                }
+            )?.queue()
 
             queueReply(
                 embed {

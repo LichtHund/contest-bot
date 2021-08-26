@@ -6,19 +6,22 @@ import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Invites
 import dev.triumphteam.contest.database.Participants
 import dev.triumphteam.contest.func.BotColor
-import dev.triumphteam.contest.func.PARTICIPATE_COMMAND
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.queueReply
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.contest.event.on
 import dev.triumphteam.contest.func.inBotChannel
 import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Instant
+import java.time.LocalTime
 
 /**
  * The current commands are temporary, JDA's way is really annoying
@@ -69,7 +72,9 @@ fun JdaApplication.invite() {
             return@on
         }
 
-        if (!invitePartner(config, partner, team[Participants.id])) return@on
+        val logChannel = guild?.getTextChannelById(config[Settings.CHANNELS].contestLog)
+
+        if (!invitePartner(config, partner, team[Participants.id], leader, logChannel)) return@on
 
         queueReply(
             embed {
@@ -86,10 +91,18 @@ fun JdaApplication.invite() {
     }
 }
 
-fun SlashCommandEvent.invitePartner(config: Config, partnerMember: Member, teamId: EntityID<Int>): Boolean {
+fun SlashCommandEvent.invitePartner(
+    config: Config,
+    partnerMember: Member,
+    teamId: EntityID<Int>,
+    leader: Member,
+    logChannel: TextChannel?
+): Boolean {
     return transaction {
 
-        val partnerResult = Participants.select { Participants.partner eq partnerMember.idLong }.firstOrNull()
+        val partnerResult =
+            Participants.select { Participants.leader eq partnerMember.idLong or (Participants.partner eq partnerMember.idLong) }
+                .firstOrNull()
         if (partnerResult != null) {
             queueReply(
                 embed {
@@ -123,6 +136,15 @@ fun SlashCommandEvent.invitePartner(config: Config, partnerMember: Member, teamI
             it[team] = teamId
             it[partner] = partnerMember.idLong
         }
+
+        logChannel?.sendMessageEmbeds(
+            embed {
+                setColor(BotColor.INFO.color)
+                setTitle("New invite added.")
+                setDescription("${partnerMember.asMention} was invited to join ${leader.asMention}'s team.")
+                setTimestamp(Instant.now())
+            }
+        )?.queue()
 
         guild?.getTextChannelById(config[Settings.CHANNELS].botCommands)
             ?.sendMessage(partnerMember.asMention)
