@@ -96,7 +96,7 @@ fun SlashCommandEvent.invitePartner(config: Config, partnerMember: Member, teamI
                     setColor(BotColor.FAIL.color)
                     setDescription(
                         """
-                            The partner you're trying to invite is already participating.
+                            The partner you're trying to invite is already in a team.
                             Please contact staff if you think this is a mistake.
                         """.trimIndent()
                     )

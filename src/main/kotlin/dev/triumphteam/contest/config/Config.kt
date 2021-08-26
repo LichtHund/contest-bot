@@ -25,6 +25,9 @@ class Config(dataFolder: File) : BaseConfig(Path.of(dataFolder.absolutePath, "co
 
 object Settings : SettingsHolder {
 
+    @me.mattstudios.config.annotations.Path("started")
+    val STARTED = Property.create(false)
+
     @me.mattstudios.config.annotations.Path("channels")
     val CHANNELS = Property.create(Channels())
 

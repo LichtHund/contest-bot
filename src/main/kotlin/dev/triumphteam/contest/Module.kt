@@ -4,6 +4,7 @@ import dev.triumphteam.bukkit.feature.install
 import dev.triumphteam.contest.commands.accept
 import dev.triumphteam.contest.commands.invite
 import dev.triumphteam.contest.commands.participate
+import dev.triumphteam.contest.commands.team
 import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.database.Database
 import dev.triumphteam.contest.listeners.voting
@@ -18,6 +19,7 @@ fun JdaApplication.module() {
     listen(JdaApplication::participate)
     listen(JdaApplication::accept)
     listen(JdaApplication::invite)
+    listen(JdaApplication::team)
     // Actual listener
     listen(JdaApplication::voting)
 

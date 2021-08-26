@@ -23,6 +23,7 @@ fun main(args: Array<String>) {
             GatewayIntent.GUILD_MESSAGE_TYPING,
             GatewayIntent.DIRECT_MESSAGES,
             GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.GUILD_MEMBERS,
         ),
         applicationFolder = File("data"),
     ) {

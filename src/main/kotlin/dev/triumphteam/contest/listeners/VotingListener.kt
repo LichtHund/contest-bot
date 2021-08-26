@@ -28,6 +28,7 @@ fun JdaApplication.voting() {
 
     on<GuildMessageReceivedEvent> {
         if (!message.contentDisplay.startsWith("!vote")) return@on
+        if (config[Settings.STARTED]) return@on
         message.delete().queue()
 
         channel.sendMessage(

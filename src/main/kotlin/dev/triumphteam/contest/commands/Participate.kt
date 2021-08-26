@@ -139,7 +139,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
 
     val team = transaction {
         Participants.insertAndGetId {
-            it[Participants.leader] = member.idLong
+            it[leader] = member.idLong
             it[Participants.repo] = repoUrl
         }
     }
@@ -152,7 +152,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         setColor(BotColor.SUCCESS.color)
         setTitle("You're in!")
         addField("Repo", repoUrl, false)
-        addField("Leader", member?.asMention, false)
+        addField("Leader", member.asMention, false)
 
         if (partner != null) {
             addField(
@@ -162,7 +162,6 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
             )
             return@embed
         }
-        setDescription("`/team` for more information!")
     }
 
     queueReply(embed)
