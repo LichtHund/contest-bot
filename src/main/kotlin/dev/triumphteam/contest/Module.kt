@@ -10,6 +10,7 @@ import dev.triumphteam.contest.database.Database
 import dev.triumphteam.contest.listeners.voting
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.contest.event.listen
+import net.dv8tion.jda.api.entities.Activity
 
 fun JdaApplication.module() {
     install(Config)
@@ -23,4 +24,5 @@ fun JdaApplication.module() {
     // Actual listener
     listen(JdaApplication::voting)
 
+    jda.presence.setPresence(Activity.competing("in Plugin Jam!"), false)
 }
