@@ -17,8 +17,9 @@ fun JdaApplication.accept() {
     on<SlashCommandEvent> {
         if (name != "accept") return@on
         deferReply(true).queue()
+
         if (!inBotChannel(config)) return@on
 
-        
+
     }
 }

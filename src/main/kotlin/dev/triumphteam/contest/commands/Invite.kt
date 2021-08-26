@@ -15,6 +15,7 @@ import dev.triumphteam.contest.func.inBotChannel
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -29,6 +30,7 @@ fun JdaApplication.invite() {
     on<SlashCommandEvent> {
         if (name != "invite") return@on
         deferReply(true).queue()
+
         if (!inBotChannel(config)) return@on
 
         val partner = getOption("partner")?.asMember ?: run {
@@ -86,6 +88,7 @@ fun JdaApplication.invite() {
 
 fun SlashCommandEvent.invitePartner(config: Config, partnerMember: Member, teamId: EntityID<Int>): Boolean {
     return transaction {
+
         val partnerResult = Participants.select { Participants.partner eq partnerMember.idLong }.firstOrNull()
         if (partnerResult != null) {
             queueReply(
@@ -97,6 +100,20 @@ fun SlashCommandEvent.invitePartner(config: Config, partnerMember: Member, teamI
                             Please contact staff if you think this is a mistake.
                         """.trimIndent()
                     )
+                }
+            )
+            return@transaction false
+        }
+
+        val invite = Invites.select {
+            Invites.team eq teamId and (Invites.partner eq partnerMember.idLong)
+        }.firstOrNull()
+
+        if (invite != null) {
+            queueReply(
+                embed {
+                    setColor(BotColor.FAIL.color)
+                    setDescription("${partnerMember.asMention} already has a pending invite from you!")
                 }
             )
             return@transaction false
