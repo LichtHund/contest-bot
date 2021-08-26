@@ -2,8 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import dev.triumphteam.helper.*
 
 plugins {
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.5.30"
     id("me.mattstudios.triumph") version "0.2.3"
+    kotlin("plugin.serialization") version "1.5.30"
 }
 
 group = "dev.triumphteam"
@@ -35,6 +36,11 @@ dependencies {
     }
 
     implementation("commons-cli:commons-cli:1.4")
+    implementation("io.ktor:ktor-client-core:1.6.3")
+    implementation("io.ktor:ktor-client-cio:1.6.3")
+    implementation("io.ktor:ktor-client-serialization:1.6.3")
+    implementation("commons-validator:commons-validator:1.7")
+
 }
 
 tasks {

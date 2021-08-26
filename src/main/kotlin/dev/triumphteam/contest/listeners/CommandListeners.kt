@@ -5,9 +5,21 @@ import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
+import dev.triumphteam.contest.func.getOrNull
 import dev.triumphteam.contest.func.plural
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.kipp.event.on
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.request.get
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
@@ -19,7 +31,23 @@ import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.Button
 import net.dv8tion.jda.api.interactions.components.Component
 import net.dv8tion.jda.api.requests.restaction.MessageAction
+import org.apache.commons.validator.routines.UrlValidator
 import java.awt.Color
+
+private val urlPattern = "(https://github.com/(?<user>[\\w'-]+)/(?<repo>[\\w'-]+)(/)?)".toRegex()
+private val scope = CoroutineScope(IO)
+
+private val client = HttpClient(CIO) {
+    install(JsonFeature) {
+        serializer = KotlinxSerializer(
+            Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+                prettyPrint = true
+            }
+        )
+    }
+}
 
 /**
  * The current commands are temporary, JDA's way is really annoying
@@ -38,8 +66,12 @@ fun JdaApplication.commands() {
     // Handling commands
     on<SlashCommandEvent> {
         when (name) {
-            "participate" -> handleParticipate()
-            "start" -> handleStart()
+            "participate" -> {
+                deferReply(true).queue()
+                scope.launch {
+                    handleParticipate(config)
+                }
+            }
         }
     }
 }
@@ -47,7 +79,7 @@ fun JdaApplication.commands() {
 private fun Guild.registerParticipate() {
     upsertCommand(
         CommandData("participate", "Sign up for the contest").apply {
-            addOption(OptionType.STRING, "repo", "GitHub/GitLab repository for the contest", true)
+            addOption(OptionType.STRING, "repo", "GitHub repository for the contest", true)
             addOption(OptionType.USER, "partner", "Teams of 2 are allowed, so introduce your partner")
         }
     ).complete()
@@ -61,11 +93,30 @@ private fun Guild.registerStart() {
     ).queue()
 }
 
-private fun SlashCommandEvent.handleParticipate() {
-    deferReply(true).queue()
+private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
+    val repoUrl = getOption("repo")?.asString ?: run {
+        // Should never happen
+        hook.sendMessage("Could not find repo option.").setEphemeral(true).queue()
+        return
+    }
 
-    val repo = getOption("repo")?.asString ?: run {
-        reply("Could not find repo option.").queue()
+    val (_, user, repo) = urlPattern.matchEntire(repoUrl)?.destructured ?: run {
+        hook.sendMessageEmbeds(
+            embed {
+                setTitle("Invalid repository Link!")
+                setDescription("Please make sure you entered a valid GitHub/GitLab link.")
+            }
+        ).setEphemeral(true).queue()
+        return
+    }
+
+    val (private) = client.getOrNull<GitHubData>("https://api.github.com/repos/$user/$repo") ?: run {
+        notPublicFail()
+        return
+    }
+
+    if (private) {
+        notPublicFail()
         return
     }
 
@@ -78,7 +129,7 @@ private fun SlashCommandEvent.handleParticipate() {
     val embed = embed {
         setColor(BotColor.SUCCESS.color)
         setTitle("You're in!")
-        addField("Repo", repo, false)
+        addField("Repo", "$user/$repo", false)
         addField("Members", participants.joinToString(", "), false)
     }
 
@@ -87,30 +138,14 @@ private fun SlashCommandEvent.handleParticipate() {
     // TODO add member and handle fail
 }
 
-/**
- * Hard coded for now, can change later if needed
- */
-private fun SlashCommandEvent.handleStart() {
-    // TODO temporary
-    val embed = embed {
-        setColor(Color.decode("#2ecc71"))
-        setTitle("Test")
-        setDescription("Testing buttons with embeded")
-    }
+@Serializable
+data class GitHubData(val private: Boolean)
 
-    reply("Done").setEphemeral(true).queue()
-
-    channel.sendMessage(
-        """
-            Hey @everyone!
-
-            We are now opening theme voting for the first official HelpChat Plugin Jam! The event will begin in a week, so be sure to get your votes in before the deadline on Friday, September 3rd. Be sure to sign up by typing /participate <repo> [@partner] in #bot-commands so you don't miss out! Please check out the #event-info channel for more information on the event, rules, and rewards. 
-            
-            We look forward to seeing what the community chooses!
-        """.trimIndent()
-    ).setActionRows(
-        ActionRow.of(Button.secondary("cyberpunk", "Cyberpunk")),
-        ActionRow.of(Button.secondary("horror", "Horror")),
-        ActionRow.of(Button.secondary("mc2", "Minecraft 2.0")),
-    ).queue()
+fun SlashCommandEvent.notPublicFail() {
+    hook.sendMessageEmbeds(
+        embed {
+            setTitle("Invalid repository!")
+            setDescription("Please make sure your repository is public!")
+        }
+    ).setEphemeral(true).queue()
 }

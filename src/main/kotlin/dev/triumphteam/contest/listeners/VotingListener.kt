@@ -44,13 +44,16 @@ fun JdaApplication.voting() {
             Please choose from one of the themes below to cast your vote!
             """.trimIndent()
         ).setActionRows(buttons.values).queue()
+        channel
+            .sendMessage("*\\*Minecraft 2.0 is basically any idea that should be in vanilla, in your opinion.*")
+            .queue()
     }
 
     on<ButtonClickEvent> {
         val buttonId = button?.id ?: return@on
         if (buttonId !in buttons.keys) return@on
         val voter = member ?: return@on
-        // TODO False for now
+
         deferReply(true).queue()
 
         transaction {
