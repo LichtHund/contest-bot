@@ -28,6 +28,9 @@ object Settings : SettingsHolder {
     @me.mattstudios.config.annotations.Path("channels")
     val CHANNELS = Property.create(Channels())
 
+    @me.mattstudios.config.annotations.Path("roles")
+    val ROLES = Property.create(Roles())
+
 }
 
 data class Channels(
@@ -37,4 +40,9 @@ data class Channels(
     var eventInfo: String = "",
     @Name("contest-log")
     var contestLog: String = "",
+)
+
+data class Roles(
+    @Name("staff-role")
+    var staffRole: String = "",
 )

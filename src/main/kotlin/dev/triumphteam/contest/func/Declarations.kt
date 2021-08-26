@@ -55,6 +55,9 @@ fun SlashCommandEvent.queueReply(message: String) {
 }
 
 fun SlashCommandEvent.inBotChannel(config: Config): Boolean {
+    val staffRole = guild?.getRoleById(config[Settings.ROLES].staffRole)
+    if (member?.roles?.contains(staffRole) == true) return true
+
     val botChannel = guild?.getTextChannelById(config[Settings.CHANNELS].botCommands)
     if (channel.idLong != botChannel?.idLong) {
         queueReply(
