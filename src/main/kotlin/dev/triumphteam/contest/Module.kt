@@ -1,7 +1,9 @@
 package dev.triumphteam.contest
 
 import dev.triumphteam.bukkit.feature.install
+import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.listeners.commands
+import dev.triumphteam.contest.listeners.voting
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.kipp.event.listen
 import dev.triumphteam.kipp.event.on
@@ -15,8 +17,10 @@ import net.dv8tion.jda.api.interactions.components.Button
 import net.dv8tion.jda.api.interactions.components.ButtonStyle
 
 fun JdaApplication.module() {
+    install(Config)
 
     listen(JdaApplication::commands)
+    listen(JdaApplication::voting)
 
     on<ButtonClickEvent> {
         when (button?.id) {

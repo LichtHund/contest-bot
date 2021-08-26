@@ -1,5 +1,8 @@
 package dev.triumphteam.contest.listeners
 
+import dev.triumphteam.bukkit.feature.feature
+import dev.triumphteam.contest.config.Config
+import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.plural
 import dev.triumphteam.jda.JdaApplication
@@ -7,17 +10,26 @@ import dev.triumphteam.kipp.event.on
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege
+import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.Button
+import net.dv8tion.jda.api.interactions.components.Component
+import net.dv8tion.jda.api.requests.restaction.MessageAction
 import java.awt.Color
 
 /**
  * The current commands are temporary, JDA's way is really annoying
  */
 fun JdaApplication.commands() {
+    val config = feature(Config)
+
     // Adds guild commands
     on<GuildReadyEvent> {
-        guild.registerStart()
+        jda.deleteCommandById(880209445211217930)
+        //guild.registerStart()
         guild.registerParticipate()
         guild.updateCommands().queue()
     }
@@ -37,7 +49,7 @@ private fun Guild.registerParticipate() {
             addOption(OptionType.STRING, "repo", "GitHub/GitLab repository for the contest", true)
             addOption(OptionType.USER, "partner", "Teams of 2 are allowed, so introduce your partner")
         }
-    ).queue()
+    ).complete()
 }
 
 private fun Guild.registerStart() {
@@ -49,6 +61,8 @@ private fun Guild.registerStart() {
 }
 
 private fun SlashCommandEvent.handleParticipate() {
+    deferReply(true).queue()
+
     val repo = getOption("repo")?.asString ?: run {
         reply("Could not find repo option.").queue()
         return
@@ -67,10 +81,35 @@ private fun SlashCommandEvent.handleParticipate() {
         addField("Members", participants.joinToString(", "), false)
     }
 
-    replyEmbeds(embed).setEphemeral(true).queue()
+    hook.sendMessageEmbeds(embed).setEphemeral(true).queue()
+    //replyEmbeds(embed).setEphemeral(true).queue()
     // TODO add member and handle fail
 }
 
+/**
+ * Hard coded for now, can change later if needed
+ */
 private fun SlashCommandEvent.handleStart() {
+    // TODO temporary
+    val embed = embed {
+        setColor(Color.decode("#2ecc71"))
+        setTitle("Test")
+        setDescription("Testing buttons with embeded")
+    }
 
+    reply("Done").setEphemeral(true).queue()
+
+    channel.sendMessage(
+        """
+            Hey @everyone!
+
+            We are now opening theme voting for the first official HelpChat Plugin Jam! The event will begin in a week, so be sure to get your votes in before the deadline on Friday, September 3rd. Be sure to sign up by typing /participate <repo> [@partner] in #bot-commands so you don't miss out! Please check out the #event-info channel for more information on the event, rules, and rewards. 
+            
+            We look forward to seeing what the community chooses!
+        """.trimIndent()
+    ).setActionRows(
+        ActionRow.of(Button.secondary("cyberpunk", "Cyberpunk")),
+        ActionRow.of(Button.secondary("horror", "Horror")),
+        ActionRow.of(Button.secondary("mc2", "Minecraft 2.0")),
+    ).queue()
 }
