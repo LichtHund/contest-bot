@@ -52,19 +52,9 @@ private val client = HttpClient(CIO) {
 fun JdaApplication.participate() {
     val config = feature(Config)
 
-    // Adds guild commands
-    on<GuildReadyEvent> {
-        guild.upsertCommand(
-            CommandData("participate", "Sign up for the contest").apply {
-                addOption(OptionType.STRING, "repo", "GitHub repository for the contest", true)
-                addOption(OptionType.USER, "partner", "Teams of 2 are allowed, so introduce your partner")
-            }
-        ).complete()
-    }
-
     // Handling commands
     on<SlashCommandEvent> {
-        if (commandId != "participate") return@on
+        if (name != "participate") return@on
 
         deferReply(true).queue()
         scope.launch {
@@ -122,7 +112,6 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         queueReply(
             embed {
                 setColor(BotColor.FAIL.color)
-                setTitle("Invalid repository Link!")
                 setDescription("Please make sure you entered a valid GitHub/GitLab link.")
             }
         )
@@ -139,6 +128,18 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         return
     }
 
+    val partner = getOption("partner")?.asMember
+
+    if (partner?.idLong == member?.idLong) {
+        queueReply(
+            embed {
+                setColor(BotColor.FAIL.color)
+                setDescription("You can't invite yourself!")
+            }
+        )
+        return
+    }
+
     val team = transaction {
         Participants.insertAndGetId {
             it[Participants.leader] = leader.idLong
@@ -146,51 +147,8 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         }
     }
 
-    val partner = getOption("partner")?.asMember
-
     if (partner != null) {
-        val found = transaction {
-            val partnerResult = Participants.select { Participants.partner eq partner.idLong }.firstOrNull()
-            if (partnerResult != null) {
-                queueReply(
-                    embed {
-                        setColor(BotColor.FAIL.color)
-                        setDescription(
-                            """
-                            The partner you're trying to invite is already participating.
-                            Please contact staff if you think this is a mistake.
-                            """.trimIndent()
-                        )
-                    }
-                )
-                return@transaction true
-            }
-
-            Invites.insert {
-                it[Invites.team] = team
-                it[Invites.partner] = partner.idLong
-            }
-
-            guild?.getTextChannelById(config[Settings.CHANNELS].botCommands)
-                ?.sendMessage(partner.asMention)
-                ?.setEmbeds(
-                    embed {
-                        setColor(BotColor.SUCCESS.color)
-                        setTitle("You have been invited.")
-                        setDescription(
-                            """
-                                ${member?.asMention} has invited you to be part of their team!
-                                Do `/accept @${member?.user?.asTag}` to accept.
-                            """.trimIndent()
-                        )
-                    }
-                )
-                ?.queue()
-
-            return@transaction false
-        }
-
-        if (found) return
+        if (!invitePartner(config, partner, team)) return
     }
 
     val embed = embed {
@@ -219,7 +177,6 @@ private fun SlashCommandEvent.notPublicFail() {
     queueReply(
         embed {
             setColor(BotColor.FAIL.color)
-            setTitle("Invalid repository!")
             setDescription("Please make sure your repository is public!")
         }
     )
