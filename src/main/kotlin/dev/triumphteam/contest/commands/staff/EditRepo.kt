@@ -1,5 +1,7 @@
 package dev.triumphteam.contest.commands.staff
 
+import dev.triumphteam.contest.config.Config
+import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Participants
 import dev.triumphteam.contest.database.Participants.leader
 import dev.triumphteam.contest.func.BotColor
@@ -10,8 +12,9 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-fun GuildMessageReceivedEvent.handleEdit(leader: String, repo: String) {
+fun GuildMessageReceivedEvent.handleEdit(config: Config, leader: String, repo: String) {
     val leaderId = leader.toLongOrNull() ?: return
+    val leaderMember = guild.getMemberById(leaderId)
     val team = transaction {
         Participants.update({ Participants.leader eq leaderId }) {
             it[Participants.repo] = repo
@@ -22,7 +25,7 @@ fun GuildMessageReceivedEvent.handleEdit(leader: String, repo: String) {
         message.replyEmbeds(
             embed {
                 setColor(BotColor.FAIL.color)
-                setDescription("Could not find team for the specified user.")
+                setDescription("Could not find team for ${leaderMember?.asMention}.")
             }
         ).mentionRepliedUser(false).queue()
         return
@@ -31,7 +34,14 @@ fun GuildMessageReceivedEvent.handleEdit(leader: String, repo: String) {
     message.replyEmbeds(
         embed {
             setColor(BotColor.SUCCESS.color)
-            setDescription("Repository changed successfully!")
+            setDescription("${leaderMember?.asMention}'s team's repository changed successfully!")
         }
     ).mentionRepliedUser(false).queue()
+
+    guild.getTextChannelById(config[Settings.CHANNELS].contestLog)?.sendMessageEmbeds(
+        embed {
+            setColor(BotColor.FAIL.color)
+            setDescription("${member?.asMention} changed ${leaderMember?.asMention}'s team's repository.")
+        }
+    )
 }

@@ -45,15 +45,15 @@ fun JdaApplication.staffCommands() {
             }
             "disband" -> {
                 if (args.size != 2) return@on
-                handleDisband(args[1])
+                handleDisband(config, args[1])
             }
             "kickpartner" -> {
                 if (args.size != 2) return@on
-                handleKick(args[1])
+                handleKick(config, args[1])
             }
             "editrepo" -> {
                 if (args.size != 3) return@on
-                handleEdit(args[1], args[2])
+                handleEdit(config, args[1], args[2])
             }
             "help" -> {
                 if (args.size > 1) return@on
