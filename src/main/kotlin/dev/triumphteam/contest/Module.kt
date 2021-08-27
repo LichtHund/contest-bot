@@ -1,14 +1,12 @@
 package dev.triumphteam.contest
 
-import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.bukkit.feature.install
 import dev.triumphteam.contest.commands.accept
 import dev.triumphteam.contest.commands.invite
 import dev.triumphteam.contest.commands.participate
-import dev.triumphteam.contest.commands.staff.participants
+import dev.triumphteam.contest.commands.staff.staffCommands
 import dev.triumphteam.contest.commands.team
 import dev.triumphteam.contest.config.Config
-import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Database
 import dev.triumphteam.contest.listeners.voting
 import dev.triumphteam.jda.JdaApplication
@@ -27,18 +25,16 @@ fun JdaApplication.module() {
     listen(JdaApplication::invite)
     listen(JdaApplication::team)
     // Staff commands
-    listen(JdaApplication::participants)
+    listen(JdaApplication::staffCommands)
     // Actual listener
     listen(JdaApplication::voting)
 
-    jda.presence.setPresence(Activity.competing("in Plugin Jam!"), false)
+    jda.presence.setPresence(Activity.competing("the Plugin Jam!"), false)
     upsertCommands()
 }
 
 fun JdaApplication.upsertCommands() {
     jda.guilds.forEach { guild ->
-
-        println("Upserting")
         // Upsert all commands
         guild.upsertCommand(
             CommandData("accept", "Accept a team invite").apply {
@@ -62,7 +58,9 @@ fun JdaApplication.upsertCommands() {
             }
         ).queue()
 
+        guild.upsertCommand(CommandData("help", "Shows available commands")).queue()
+        guild.upsertCommand(CommandData("disband", "Disbands team")).queue()
+
         guild.updateCommands().queue()
-        println("done")
     }
 }

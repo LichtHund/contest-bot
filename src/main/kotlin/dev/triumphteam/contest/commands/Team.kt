@@ -60,7 +60,7 @@ fun JdaApplication.team() {
                     setColor(BotColor.SUCCESS.color)
                     setTitle("Team info!")
                     addField("Members", members, false)
-                    addField("Repo", team[Participants.repo], false)
+                    addField("Repository", team[Participants.repo], false)
                 }
             )
         }

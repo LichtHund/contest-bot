@@ -34,7 +34,7 @@ dependencies {
     implementation(feature(CoreFeature.CONFIG, "2.0.0"))
 
     // JDA
-    implementation("net.dv8tion:JDA:4.3.0_307") {
+    implementation("net.dv8tion:JDA:4.3.0_310") {
         exclude(module = "opus-java")
     }
 

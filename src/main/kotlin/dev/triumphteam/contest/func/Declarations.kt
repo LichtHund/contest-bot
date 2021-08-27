@@ -9,6 +9,7 @@ import io.ktor.client.request.get
 import io.ktor.http.Url
 import io.ktor.http.takeFrom
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import org.apache.commons.cli.DefaultParser
@@ -70,4 +71,8 @@ fun SlashCommandEvent.inBotChannel(config: Config): Boolean {
     }
 
     return true
+}
+
+fun  Member.isManager(config: Config) = roles.none {
+    id == config[Settings.ROLES].manager || id == config[Settings.ROLES].admin
 }

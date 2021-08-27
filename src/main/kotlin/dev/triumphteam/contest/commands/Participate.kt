@@ -4,6 +4,7 @@ import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Participants
+import dev.triumphteam.contest.database.Participants.repo
 import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.getOrNull
@@ -28,7 +29,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.time.LocalTime
 
-private val urlPattern = "(https://github.com/(?<user>[\\w'-]+)/(?<repo>[\\w'-]+)(/)?)".toRegex()
+private val urlPattern = "((https://)?github.com/(?<user>[\\w'-]+)/(?<repo>[\\w'-]+)(/)?)".toRegex()
 private val scope = CoroutineScope(IO)
 
 private val client = HttpClient(CIO) {
@@ -108,11 +109,11 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         return
     }
 
-    val (_, user, repo) = urlPattern.matchEntire(repoUrl)?.destructured ?: run {
+    val (_, _, user, repo) = urlPattern.matchEntire(repoUrl)?.destructured ?: run {
         queueReply(
             embed {
                 setColor(BotColor.FAIL.color)
-                setDescription("Please make sure you entered a valid GitHub/GitLab link.")
+                setDescription("Please make sure you entered a valid GitHub link.")
             }
         )
         return
@@ -166,7 +167,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
     val embed = embed {
         setColor(BotColor.SUCCESS.color)
         setTitle("You're in!")
-        addField("Repo", repoUrl, false)
+        addField("Repository", repoUrl, false)
         addField("Leader", member.asMention, false)
 
         if (partner != null) {
