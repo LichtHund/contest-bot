@@ -8,6 +8,7 @@ import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.contest.event.on
+import dev.triumphteam.contest.func.PARTICIPATE_COMMAND
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
@@ -31,13 +32,16 @@ fun JdaApplication.voting() {
         if (config[Settings.STARTED]) return@on
         message.delete().queue()
 
+        config[Settings.STARTED] = true
+        config.save()
+
         channel.sendMessage(
             """
             Hey @everyone!
 
             We are now opening theme voting for the first official HelpChat Plugin Jam! 
             The event will begin in a week, so be sure to get your votes in before the deadline on Friday, September 3rd. 
-            Be sure to sign up by typing `/participate <repo> [@partner]` in ${guild.getTextChannelById(config[Settings.CHANNELS].botCommands)?.asMention} so you don't miss out!
+            Be sure to sign up by typing `$PARTICIPATE_COMMAND` in ${guild.getTextChannelById(config[Settings.CHANNELS].botCommands)?.asMention} so you don't miss out!
             Please check out the ${guild.getTextChannelById(config[Settings.CHANNELS].eventInfo)?.asMention} channel for more information on the event, rules, and rewards. 
             We look forward to seeing what the community chooses!
             

@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import dev.triumphteam.helper.*
 
@@ -5,6 +6,8 @@ plugins {
     kotlin("jvm") version "1.5.30"
     id("me.mattstudios.triumph") version "0.2.3"
     kotlin("plugin.serialization") version "1.5.30"
+    application
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 group = "dev.triumphteam"
@@ -43,10 +46,18 @@ dependencies {
 
 }
 
+application {
+    mainClass.set("dev.triumphteam.contest.ApplicationKt")
+}
+
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "16"
         }
+    }
+
+    withType<ShadowJar> {
+        archiveFileName.set("contest.jar")
     }
 }
