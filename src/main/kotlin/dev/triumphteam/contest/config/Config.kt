@@ -49,5 +49,6 @@ data class Roles(
     @Name("staff-role")
     var staffRole: String = "",
     var manager: String = "",
+    var trusted: String = "",
     var admin: String = "",
 )

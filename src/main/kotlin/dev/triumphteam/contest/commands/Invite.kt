@@ -58,6 +58,16 @@ fun JdaApplication.invite() {
             return@on
         }
 
+        if (partner.user.isBot) {
+            queueReply(
+                embed {
+                    setColor(BotColor.FAIL.color)
+                    setDescription("You cannot invite bots to your team!")
+                }
+            )
+            return@on
+        }
+
         val team = transaction {
             Participants.select { Participants.leader eq leader.idLong }.firstOrNull()
         }
@@ -67,6 +77,16 @@ fun JdaApplication.invite() {
                 embed {
                     setColor(BotColor.FAIL.color)
                     setDescription("You're not participating in the contest or not the leader of a team!")
+                }
+            )
+            return@on
+        }
+
+        if (team[Participants.partner] != null) {
+            queueReply(
+                embed {
+                    setColor(BotColor.FAIL.color)
+                    setDescription("Your team is already full!")
                 }
             )
             return@on

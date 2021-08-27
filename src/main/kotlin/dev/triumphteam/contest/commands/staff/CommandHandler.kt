@@ -55,6 +55,10 @@ fun JdaApplication.staffCommands() {
                 if (args.size != 3) return@on
                 handleEdit(args[1], args[2])
             }
+            "help" -> {
+                if (args.size > 1) return@on
+                handleHelp()
+            }
         }
     }
 }

@@ -141,6 +141,16 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         return
     }
 
+    if (partner?.user?.isBot == true) {
+        queueReply(
+            embed {
+                setColor(BotColor.FAIL.color)
+                setDescription("You cannot invite bots to your team!")
+            }
+        )
+        return
+    }
+
     val team = transaction {
         Participants.insertAndGetId {
             it[leader] = member.idLong

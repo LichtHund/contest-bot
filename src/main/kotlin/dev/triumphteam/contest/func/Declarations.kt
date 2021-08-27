@@ -73,6 +73,6 @@ fun SlashCommandEvent.inBotChannel(config: Config): Boolean {
     return true
 }
 
-fun  Member.isManager(config: Config) = roles.none {
-    id == config[Settings.ROLES].manager || id == config[Settings.ROLES].admin
+fun Member.isManager(config: Config) = roles.none {
+    id == config[Settings.ROLES].manager || id == config[Settings.ROLES].admin || id == config[Settings.ROLES].trusted
 }
