@@ -38,5 +38,5 @@ fun GuildMessageReceivedEvent.handleDisband(config: Config, leader: String) {
             setColor(BotColor.FAIL.color)
             setDescription("${member?.asMention} disbanded ${leaderMember?.asMention}'s team.")
         }
-    )
+    )?.queue()
 }

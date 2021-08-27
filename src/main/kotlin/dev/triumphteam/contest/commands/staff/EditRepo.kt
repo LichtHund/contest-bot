@@ -43,5 +43,5 @@ fun GuildMessageReceivedEvent.handleEdit(config: Config, leader: String, repo: S
             setColor(BotColor.FAIL.color)
             setDescription("${member?.asMention} changed ${leaderMember?.asMention}'s team's repository.")
         }
-    )
+    )?.queue()
 }

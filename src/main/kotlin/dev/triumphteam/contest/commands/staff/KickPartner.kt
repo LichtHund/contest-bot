@@ -48,5 +48,5 @@ fun GuildMessageReceivedEvent.handleKick(config: Config, user: String) {
             setColor(BotColor.FAIL.color)
             setDescription("${member?.asMention} kicked ${leaderMember?.asMention}'s partner.")
         }
-    )
+    )?.queue()
 }

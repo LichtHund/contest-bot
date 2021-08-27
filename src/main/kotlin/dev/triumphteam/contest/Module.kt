@@ -58,6 +58,6 @@ fun JdaApplication.upsertCommands() {
             }
         ).queue()
 
-        guild.updateCommands().queue()
+        //guild.updateCommands().queue()
     }
 }
