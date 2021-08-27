@@ -34,6 +34,6 @@ fun GuildMessageReceivedEvent.handleParticipants() {
             addField("Members", members, true)
         }
 
-        channel.sendMessageEmbeds(embed).queue()
+        message.replyEmbeds(embed).mentionRepliedUser(false).queue()
     }
 }

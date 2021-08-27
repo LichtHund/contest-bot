@@ -1,17 +1,21 @@
 package dev.triumphteam.contest.commands.staff
 
 import dev.triumphteam.contest.database.Participants
+import dev.triumphteam.contest.database.Participants.leader
 import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
-fun GuildMessageReceivedEvent.handleDisband(leader: String) {
-    val leaderId = leader.toLongOrNull() ?: return
+fun GuildMessageReceivedEvent.handleKick(partner: String) {
+    val partnerId = partner.toLongOrNull() ?: return
     val team = transaction {
-        Participants.deleteWhere { Participants.leader eq leaderId }
+        Participants.update({ Participants.partner eq partnerId }) {
+            it[Participants.partner] = null
+        }
     }
 
     if (team == 0) {
@@ -27,7 +31,7 @@ fun GuildMessageReceivedEvent.handleDisband(leader: String) {
     message.replyEmbeds(
         embed {
             setColor(BotColor.SUCCESS.color)
-            setDescription("Team disbanded!")
+            setDescription("User kicked from team successfully!")
         }
     ).mentionRepliedUser(false).queue()
 }

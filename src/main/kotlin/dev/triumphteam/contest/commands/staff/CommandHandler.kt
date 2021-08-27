@@ -43,6 +43,18 @@ fun JdaApplication.staffCommands() {
                 if (args.size > 1) return@on
                 handleVotes()
             }
+            "disband" -> {
+                if (args.size != 2) return@on
+                handleDisband(args[1])
+            }
+            "kickpartner" -> {
+                if (args.size != 2) return@on
+                handleKick(args[1])
+            }
+            "editrepo" -> {
+                if (args.size != 3) return@on
+                handleEdit(args[1], args[2])
+            }
         }
     }
 }

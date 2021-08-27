@@ -19,7 +19,7 @@ fun GuildMessageReceivedEvent.handleVotes() {
         }
     }
 
-    channel.sendMessageEmbeds(
+    message.replyEmbeds(
         embed {
             setColor(BotColor.INFO.color)
             setTitle("Current vote status")
@@ -31,5 +31,5 @@ fun GuildMessageReceivedEvent.handleVotes() {
                 """.trimIndent()
             )
         }
-    ).queue()
+    ).mentionRepliedUser(false).queue()
 }
