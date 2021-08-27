@@ -58,9 +58,6 @@ fun JdaApplication.upsertCommands() {
             }
         ).queue()
 
-        guild.upsertCommand(CommandData("help", "Shows available commands")).queue()
-        guild.upsertCommand(CommandData("disband", "Disbands team")).queue()
-
         guild.updateCommands().queue()
     }
 }
