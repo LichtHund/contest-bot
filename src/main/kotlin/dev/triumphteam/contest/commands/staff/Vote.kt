@@ -8,13 +8,13 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 fun GuildMessageReceivedEvent.handleVote(config: Config, channelId: String) {
     val announcements = guild.getTextChannelById(channelId) ?: return
-
+    if (config[Settings.VOTES].votesStarted) return
     message.delete().queue()
 
-    config[Settings.STARTED] = true
-    config.save()
+    config[Settings.VOTES].votesStarted = true
+    config[Settings.VOTES].votesChannel = announcements.id
 
-    announcements.sendMessage(
+    val voteMessage = announcements.sendMessage(
         """
             Hey @everyone!
 
@@ -26,8 +26,11 @@ fun GuildMessageReceivedEvent.handleVote(config: Config, channelId: String) {
             
             Please choose from one of the themes below to cast your vote!
             """.trimIndent()
-    ).setActionRows(BUTTONS.values).queue()
+    ).setActionRows(BUTTONS.values).complete()
     announcements
         .sendMessage("*\\*Minecraft 2.0 is basically any idea that should be in vanilla, in your opinion.*")
         .queue()
+
+    config[Settings.VOTES].votesMessage = voteMessage.id
+    config.save()
 }

@@ -25,8 +25,8 @@ class Config(dataFolder: File) : BaseConfig(Path.of(dataFolder.absolutePath, "co
 
 object Settings : SettingsHolder {
 
-    @me.mattstudios.config.annotations.Path("started")
-    val STARTED = Property.create(false)
+    @me.mattstudios.config.annotations.Path("votes")
+    val VOTES = Property.create(Votes())
 
     @me.mattstudios.config.annotations.Path("channels")
     val CHANNELS = Property.create(Channels())
@@ -51,4 +51,13 @@ data class Roles(
     var manager: String = "",
     var trusted: String = "",
     var admin: String = "",
+)
+
+data class Votes(
+    @Name("votes-started")
+    var votesStarted: Boolean = false,
+    @Name("votes-message")
+    var votesMessage: String = "",
+    @Name("votes-channel")
+    var votesChannel: String = "",
 )
