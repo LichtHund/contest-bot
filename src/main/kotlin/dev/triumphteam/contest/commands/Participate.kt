@@ -109,7 +109,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         return
     }
 
-    val (_, _, user, repo) = urlPattern.matchEntire(repoUrl)?.destructured ?: run {
+    val (_, protocol, user, repo) = urlPattern.matchEntire(repoUrl)?.destructured ?: run {
         queueReply(
             embed {
                 setColor(BotColor.FAIL.color)
@@ -118,6 +118,8 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         )
         return
     }
+
+    val repository = if (protocol.isEmpty()) "https://$repoUrl" else repoUrl
 
     val (private) = client.getOrNull<GitHubData>("https://api.github.com/repos/$user/$repo") ?: run {
         notPublicFail()
@@ -154,7 +156,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
     val team = transaction {
         Participants.insertAndGetId {
             it[leader] = member.idLong
-            it[Participants.repo] = repoUrl
+            it[Participants.repo] = repository
         }
     }
 
@@ -165,7 +167,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
             setColor(BotColor.INFO.color)
             setTitle("New team registered.")
             addField("Leader", member.asMention, false)
-            addField("Repository", repoUrl, false)
+            addField("Repository", repository, false)
             setTimestamp(Instant.now())
         }
     )?.queue()
@@ -177,7 +179,7 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
     val embed = embed {
         setColor(BotColor.SUCCESS.color)
         setTitle("You're in!")
-        addField("Repository", repoUrl, false)
+        addField("Repository", repository, false)
         addField("Leader", member.asMention, false)
 
         if (partner != null) {

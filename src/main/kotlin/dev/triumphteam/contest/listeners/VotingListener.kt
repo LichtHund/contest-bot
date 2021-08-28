@@ -1,6 +1,7 @@
 package dev.triumphteam.contest.listeners
 
 import dev.triumphteam.bukkit.feature.feature
+import dev.triumphteam.contest.commands.staff.voteMessage
 import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Votes
@@ -21,6 +22,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
 fun JdaApplication.voting() {
+    val config = feature(Config)
 
     on<ButtonClickEvent> {
         val buttonId = button?.id ?: return@on
@@ -36,6 +38,10 @@ fun JdaApplication.voting() {
                 Votes.insert {
                     it[Votes.vote] = buttonId
                     it[Votes.voter] = voter.idLong
+                }
+
+                guild?.let {
+                    message?.editMessage(voteMessage(it, config))?.queue()
                 }
 
                 hook.sendMessageEmbeds(

@@ -26,6 +26,7 @@ fun JdaApplication.staffCommands() {
     val config = feature(Config)
 
     on<GuildMessageReceivedEvent> {
+        if (author.isBot) return@on
         if (!message.contentDisplay.startsWith('!')) return@on
         if (member?.isManager(config) != true) return@on
         val args = message.contentDisplay.removePrefix("!").split(" ")
@@ -62,4 +63,5 @@ fun JdaApplication.staffCommands() {
         }
     }
 }
+
 
