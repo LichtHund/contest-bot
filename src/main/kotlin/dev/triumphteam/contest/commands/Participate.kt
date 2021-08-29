@@ -29,7 +29,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.time.LocalTime
 
-private val urlPattern = "((https://)?github.com/(?<user>[\\w'-]+)/(?<repo>[\\w'-]+)(/)?)".toRegex()
+private val urlPattern = "((https://)?(?<type>github|gitlab).com/(?<user>[\\w'-]+)/(?<repo>[\\w'-]+)(/)?)".toRegex()
 private val scope = CoroutineScope(IO)
 
 private val client = HttpClient(CIO) {
@@ -109,11 +109,11 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         return
     }
 
-    val (_, protocol, user, repo) = urlPattern.matchEntire(repoUrl)?.destructured ?: run {
+    val (_, protocol, type, user, repo) = urlPattern.matchEntire(repoUrl)?.destructured ?: run {
         queueReply(
             embed {
                 setColor(BotColor.FAIL.color)
-                setDescription("Please make sure you entered a valid GitHub link.")
+                setDescription("Please make sure you entered a valid GitHub/GitLab link.")
             }
         )
         return
@@ -121,9 +121,26 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
 
     val repository = if (protocol.isEmpty()) "https://$repoUrl" else repoUrl
 
-    val (private) = client.getOrNull<GitHubData>("https://api.github.com/repos/$user/$repo") ?: run {
-        notPublicFail()
-        return
+    val private = when (type) {
+        "github" -> {
+            val (private) = client.getOrNull<GitHubData>("https://api.github.com/repos/$user/$repo") ?: run {
+                notPublicFail()
+                return
+            }
+
+            private
+        }
+
+        "gitlab" -> {
+            val (id) = client.getOrNull<GitLabData>("https://gitlab.com/api/v4/projects/$user%2f$repo") ?: run {
+                notPublicFail()
+                return
+            }
+
+            id == 0L
+        }
+
+        else -> true
     }
 
     if (private) {
@@ -197,6 +214,9 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
 
 @Serializable
 data class GitHubData(val private: Boolean)
+
+@Serializable
+data class GitLabData(val id: Long)
 
 private fun SlashCommandEvent.notPublicFail() {
     queueReply(

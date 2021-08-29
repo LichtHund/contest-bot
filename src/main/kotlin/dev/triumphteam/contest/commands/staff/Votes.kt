@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun GuildMessageReceivedEvent.handleVotes() {
     val votes = transaction {
-        val voteResult = Votes.slice(Votes.vote, Votes.vote.count()).selectAll().groupBy(Votes.id).execute(this)
+        val voteResult = Votes.slice(Votes.vote, Votes.vote.count()).selectAll().groupBy(Votes.vote).execute(this)
             ?: return@transaction emptyMap()
         return@transaction mutableMapOf<String, Int>().apply {
             while (voteResult.next()) {

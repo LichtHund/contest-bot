@@ -46,8 +46,11 @@ fun JdaApplication.accept() {
         }
 
         transaction {
-            Participants.select { leader eq inviter.idLong or (Participants.partner eq member.idLong) }
-                .firstOrNull() ?: run {
+            // TODO figure and fix
+            val userTeam = Participants.select { leader eq inviter.idLong or (Participants.partner eq member.idLong) }
+                .firstOrNull()
+
+            if (userTeam != null) {
                 queueReply(
                     embed {
                         setColor(BotColor.FAIL.color)
