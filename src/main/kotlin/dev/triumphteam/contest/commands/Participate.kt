@@ -209,6 +209,10 @@ private suspend fun SlashCommandEvent.handleParticipate(config: Config) {
         }
     }
 
+    guild?.getRoleById(config[Settings.ROLES].participant)?.let {
+        guild?.addRoleToMember(member, it)?.queue()
+    }
+
     queueReply(embed)
 }
 

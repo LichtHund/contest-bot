@@ -47,7 +47,7 @@ fun JdaApplication.accept() {
 
         transaction {
             // TODO figure and fix
-            val userTeam = Participants.select { leader eq inviter.idLong or (Participants.partner eq member.idLong) }
+            val userTeam = Participants.select { leader eq member.idLong or (Participants.partner eq member.idLong) }
                 .firstOrNull()
 
             if (userTeam != null) {
@@ -95,6 +95,10 @@ fun JdaApplication.accept() {
                     setTimestamp(Instant.now())
                 }
             )?.queue()
+
+            guild?.getRoleById(config[Settings.ROLES].participant)?.let {
+                guild?.addRoleToMember(member, it)?.queue()
+            }
 
             queueReply(
                 embed {

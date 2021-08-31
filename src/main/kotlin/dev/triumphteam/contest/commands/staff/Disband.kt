@@ -35,6 +35,16 @@ fun GuildMessageReceivedEvent.handleDisband(config: Config, leader: String) {
         Participants.deleteWhere { Participants.leader eq leaderId }
     }
 
+    guild.getRoleById(config[Settings.ROLES].participant)?.let {
+        if (leaderMember != null) {
+            guild.removeRoleFromMember(leaderMember, it).queue()
+        }
+
+        if (partner != null) {
+            guild.removeRoleFromMember(partner, it).queue()
+        }
+    }
+
     message.replyEmbeds(
         embed {
             setColor(BotColor.SUCCESS.color)

@@ -51,6 +51,7 @@ data class Roles(
     var manager: String = "",
     var trusted: String = "",
     var admin: String = "",
+    var participant: String = "",
 )
 
 data class Votes(

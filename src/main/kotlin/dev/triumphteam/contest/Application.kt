@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag
+import org.bukkit.Bukkit
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -25,6 +26,7 @@ fun main(args: Array<String>) {
             GatewayIntent.DIRECT_MESSAGES,
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.GUILD_MEMBERS,
+            GatewayIntent.GUILD_MESSAGE_REACTIONS,
         ),
         applicationFolder = File("data"),
     ) {

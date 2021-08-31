@@ -16,6 +16,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://m2.dv8tion.net/releases")
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {
@@ -43,6 +44,9 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:1.6.3")
     implementation("io.ktor:ktor-client-serialization:1.6.3")
     implementation("commons-validator:commons-validator:1.7")
+
+    // triumph msg adventure
+    implementation("me.mattstudios:triumph-msg-adventure:2.2.4-SNAPSHOT")
 
 }
 

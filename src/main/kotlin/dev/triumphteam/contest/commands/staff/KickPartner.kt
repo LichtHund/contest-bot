@@ -50,6 +50,12 @@ fun GuildMessageReceivedEvent.handleKick(config: Config, user: String) {
         }
     }
 
+    guild.getRoleById(config[Settings.ROLES].participant)?.let {
+        if (partnerMember != null) {
+            guild.removeRoleFromMember(partnerMember, it).queue()
+        }
+    }
+
     message.replyEmbeds(
         embed {
             setColor(BotColor.SUCCESS.color)
