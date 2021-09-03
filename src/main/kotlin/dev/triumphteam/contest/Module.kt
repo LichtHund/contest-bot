@@ -1,6 +1,5 @@
 package dev.triumphteam.contest
 
-import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.bukkit.feature.install
 import dev.triumphteam.contest.commands.accept
 import dev.triumphteam.contest.commands.invite
@@ -9,32 +8,27 @@ import dev.triumphteam.contest.commands.staff.pageListener
 import dev.triumphteam.contest.commands.staff.staffCommands
 import dev.triumphteam.contest.commands.team
 import dev.triumphteam.contest.config.Config
-import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Database
-import dev.triumphteam.contest.database.Participants
-import dev.triumphteam.contest.listeners.voting
-import dev.triumphteam.jda.JdaApplication
 import dev.triumphteam.contest.event.listen
-import dev.triumphteam.contest.event.on
+import dev.triumphteam.contest.listeners.voting
+import dev.triumphteam.contest.scheduler.Scheduler
+import dev.triumphteam.contest.scheduler.runTaskLater
+import dev.triumphteam.contest.scheduler.seconds
+import dev.triumphteam.jda.JdaApplication
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.entities.Activity
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.exceptions.ErrorResponseException
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.Scanner
 
 private val scope = CoroutineScope(IO)
 
 fun JdaApplication.module() {
-    val config = install(Config)
+    install(Config)
     install(Database)
+    install(Scheduler)
 
     // Commands (I know)
     listen(JdaApplication::participate)
@@ -48,13 +42,19 @@ fun JdaApplication.module() {
     listen(JdaApplication::pageListener)
 
     jda.presence.setPresence(Activity.competing("the Plugin Jam!"), false)
-    upsertCommands()
+
+    runTaskLater(seconds(5)) {
+        upsertCommands()
+    }
 
     scope.launch {
         console()
     }
 }
 
+/**
+ * Just simple system for console commands for using the bot to message
+ */
 fun JdaApplication.console() {
     while (true) {
         val args = readLine()?.split(" ") ?: continue
@@ -103,17 +103,7 @@ fun JdaApplication.console() {
 
 fun JdaApplication.upsertCommands() {
     jda.guilds.forEach { guild ->
-
-        /*scope.launch {
-            val role = guild.getRoleById(feature(Config)[Settings.ROLES].participant) ?: return@launch
-            guild.members.forEach members@{ member ->
-                transaction {
-                    Participants.select { Participants.leader eq member.idLong or (Participants.partner eq member.idLong) }
-                        .firstOrNull()
-                } ?: return@members
-                guild.addRoleToMember(member, role).queue()
-            }
-        }*/
+        //runTaskLater(MINUTES_TILL_NOON) { endVoting(guild) }
 
         // Upsert all commands
         guild.upsertCommand(

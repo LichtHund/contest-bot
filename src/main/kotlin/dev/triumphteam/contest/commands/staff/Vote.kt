@@ -7,13 +7,12 @@ import dev.triumphteam.contest.func.BUTTONS
 import dev.triumphteam.contest.func.PARTICIPATE_COMMAND
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun GuildMessageReceivedEvent.handleVote(config: Config, channelId: String) {
     val announcements = guild.getTextChannelById(channelId) ?: return
-    //if (config[Settings.VOTES].votesStarted) return
+    if (config[Settings.VOTES].votesStarted) return
     message.delete().queue()
 
     config[Settings.VOTES].votesStarted = true
@@ -34,8 +33,6 @@ fun voteMessage(guild: Guild, config: Config): String {
     }
 
     return """
-            Hey @everyone!
-
             We are now opening theme voting for the first official HelpChat Plugin Jam! 
             The event will begin in a week, so be sure to get your votes in before the deadline on Friday, September 3rd. 
             Be sure to sign up by typing `$PARTICIPATE_COMMAND` in ${guild.getTextChannelById(config[Settings.CHANNELS].botCommands)?.asMention} so you don't miss out!

@@ -2,7 +2,6 @@ package dev.triumphteam.contest.config
 
 import dev.triumphteam.bukkit.configuration.BaseConfig
 import dev.triumphteam.bukkit.feature.ApplicationFeature
-import dev.triumphteam.bukkit.feature.attribute.AttributeKey
 import dev.triumphteam.bukkit.feature.attribute.key
 import dev.triumphteam.jda.JdaApplication
 import me.mattstudios.config.SettingsHolder
@@ -61,4 +60,5 @@ data class Votes(
     var votesMessage: String = "",
     @Name("votes-channel")
     var votesChannel: String = "",
+    var closed: Boolean = false,
 )

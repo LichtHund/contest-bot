@@ -4,14 +4,13 @@ import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.contest.config.Config
 import dev.triumphteam.contest.config.Settings
 import dev.triumphteam.contest.database.Participants
-import dev.triumphteam.contest.database.Participants.repo
+import dev.triumphteam.contest.event.on
 import dev.triumphteam.contest.func.BotColor
 import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.getOrNull
+import dev.triumphteam.contest.func.inBotChannel
 import dev.triumphteam.contest.func.queueReply
 import dev.triumphteam.jda.JdaApplication
-import dev.triumphteam.contest.event.on
-import dev.triumphteam.contest.func.inBotChannel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.json.JsonFeature
@@ -27,9 +26,8 @@ import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
-import java.time.LocalTime
 
-private val urlPattern = "((https://)?(?<type>github|gitlab).com/(?<user>[\\w'-]+)/(?<repo>[\\w'-]+)(/)?)".toRegex()
+private val urlPattern = "((https://)?(?<type>github|gitlab).com/(?<user>[\\w'-]+)/(?<repo>[\\w'-.]+)(/)?)".toRegex()
 private val scope = CoroutineScope(IO)
 
 private val client = HttpClient(CIO) {

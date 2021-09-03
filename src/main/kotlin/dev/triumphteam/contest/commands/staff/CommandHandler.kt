@@ -2,25 +2,10 @@ package dev.triumphteam.contest.commands.staff
 
 import dev.triumphteam.bukkit.feature.feature
 import dev.triumphteam.contest.config.Config
-import dev.triumphteam.contest.config.Settings
-import dev.triumphteam.contest.database.Invites.team
-import dev.triumphteam.contest.database.Participants
-import dev.triumphteam.contest.database.Votes
 import dev.triumphteam.contest.event.on
-import dev.triumphteam.contest.func.BUTTONS
-import dev.triumphteam.contest.func.BotColor
-import dev.triumphteam.contest.func.PARTICIPATE_COMMAND
-import dev.triumphteam.contest.func.embed
 import dev.triumphteam.contest.func.isManager
 import dev.triumphteam.jda.JdaApplication
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 
 fun JdaApplication.staffCommands() {
     val config = feature(Config)
